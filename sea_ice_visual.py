@@ -2,6 +2,7 @@ import json
 from json import encoder
 from netCDF4 import Dataset
 import matplotlib.pyplot as plt
+import datetime as dt
 
 data_dir = "json/sea-ice/"
 #nci = Dataset('data/ice-cores/Burkhart_JGR_2009.nc', 'r')
@@ -9,6 +10,9 @@ data_dir = "json/sea-ice/"
 sid = Dataset('data/sea-ice/Bootstrap2_seaice_NH_monthly_197811-201412.nc', 'r')
 sic_mean = sid.variables['sic_mean']
 time = sid.variables['time']
+basetime = dt.datetime.strptime(" ".join(time.units.split()[-2:]), "%Y-%m-%d %H:%M:%S")
+epoch_since = dt.datetime(1970,1,1)
+time_offset = basetime - epoch_since;
 lat = sid.variables['lat']
 lon = sid.variables['lon']
 
@@ -19,7 +23,9 @@ with open(data_dir+"lon.json", 'w') as fd:
 	fd.write(json.dumps(lon[0:].tolist()))
 
 with open(data_dir+"time.json", 'w') as fd:
-	fd.write(json.dumps(time[0:].tolist()))
+	time_list = time[0:].tolist()
+	time_list = [(time_offset+dt.timedelta(days=x)).total_seconds() for x in time_list]
+	fd.write(json.dumps(time_list))
 
 # def json_float_formatter(o):
 # 	s = format(o, '.2f')

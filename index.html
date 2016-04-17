@@ -24,6 +24,7 @@
 <script src="https://code.jquery.com/jquery-2.2.2.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.16/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.20/topojson.min.js"></script>
+<p id="time_str"></p>
 <script>
 
 var width = 400,
@@ -70,6 +71,9 @@ var k=0;
 function updatePlot(latdata, londata) {
   console.log(k);
 
+  d = new Date(timeData[k]*1000)
+  $("#time_str").text(d);
+
   d3.json("./json/sea-ice/"+k+".json", function(sic_mean) {
     data = []
 
@@ -110,11 +114,15 @@ function updatePlot(latdata, londata) {
   });
 }
 
+var timeData
 d3.json("./json/sea-ice/lon.json", function(londata) {
   d3.json("./json/sea-ice/lat.json", function(latdata) {
     latDelta = (latdata[1]-latdata[0])/2
     lonDelta = (londata[1]-londata[0])/2
-    updatePlot(latdata, londata);
+    d3.json("./json/sea-ice/time.json", function(timedata) {
+      timeData = timedata;
+      updatePlot(latdata, londata);
+    });
   });
 });
 
