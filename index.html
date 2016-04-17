@@ -75,12 +75,14 @@ function updatePlot(latdata, londata) {
 
     for (i = 0; i < latdata.length; i+=5) {
       for (j = 0; j < londata.length; j+=5) {
-        var v = [ projection([londata[j]-5*lonDelta, latdata[i]-5*latDelta]),
-                  projection([londata[j]-5*lonDelta, latdata[i]+5*latDelta]),
-                  projection([londata[j]+5*lonDelta, latdata[i]+5*latDelta]),
-                  projection([londata[j]+5*lonDelta, latdata[i]-5*latDelta]) ];
+        if(sic_mean[i][j] !== 0) {
+          var v = [ projection([londata[j]-5*lonDelta, latdata[i]-5*latDelta]),
+                    projection([londata[j]-5*lonDelta, latdata[i]+5*latDelta]),
+                    projection([londata[j]+5*lonDelta, latdata[i]+5*latDelta]),
+                    projection([londata[j]+5*lonDelta, latdata[i]-5*latDelta]) ];
 
-        data.push([v, sic_mean[i][j]]);
+          data.push([v, sic_mean[i][j]]);
+        }
       }
     }
 
