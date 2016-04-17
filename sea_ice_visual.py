@@ -3,7 +3,7 @@ from json import encoder
 from netCDF4 import Dataset
 import matplotlib.pyplot as plt
 
-data_dir = "json/sea-ice"
+data_dir = "json/sea-ice/"
 #nci = Dataset('data/ice-cores/Burkhart_JGR_2009.nc', 'r')
 
 sid = Dataset('data/sea-ice/Bootstrap2_seaice_NH_monthly_197811-201412.nc', 'r')
@@ -21,11 +21,19 @@ with open(data_dir+"lon.json", 'w') as fd:
 with open(data_dir+"time.json", 'w') as fd:
 	fd.write(json.dumps(time[0:].tolist()))
 
-encoder.FLOAT_REPR = lambda o: format(o, '.2f')
-for i, t in enumerate(time):
-	with open(data_dir+str(int(i))+".json", 'w') as fd:
-		fd.write(json.dumps(sic_mean[i,0].filled(0).tolist()))
-	print i, t
+# def json_float_formatter(o):
+# 	s = format(o, '.2f')
+# 	if float(s) != 0:
+# 		return s
+# 	else:
+# 		return "0"
+
+# encoder.FLOAT_REPR = json_float_formatter
+# json.encoder.c_make_encoder = None
+# for i, t in enumerate(time):
+# 	with open(data_dir+str(int(i))+".json", 'w') as fd:
+# 		fd.write(json.dumps(sic_mean[i,0].filled(0).tolist(), separators=(',',':')))
+# 	print i, t
 
 # len(nci.groups)
 # nci.groups.keys()
