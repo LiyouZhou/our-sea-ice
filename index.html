@@ -26,8 +26,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.20/topojson.min.js"></script>
 <script>
 
-var width = 960,
-    height = 480;
+var width = 400,
+    height = 400;
 
 var projection = d3.geo.orthographic()
     .scale(153)
@@ -70,34 +70,34 @@ var k=0;
 function updatePlot(latdata, londata) {
   console.log(k);
 
-  d3.json("./json/"+k+".json", function(sic_mean) {
+  d3.json("./json/sea-ice/"+k+".json", function(sic_mean) {
     data = []
 
-    for (i = 0; i < latdata.length; i+=10) {
-      for (j = 0; j< londata.length; j+=10) {
-        var a = projection([londata[j], latdata[i]]);
-        a.push( sic_mean[i][j] );
-        data.push(a);
+    for (i = 0; i < latdata.length; i+=5) {
+      for (j = 0; j < londata.length; j+=5) {
+        var v = [ projection([londata[j]-5*lonDelta, latdata[i]-5*latDelta]),
+                  projection([londata[j]-5*lonDelta, latdata[i]+5*latDelta]),
+                  projection([londata[j]+5*lonDelta, latdata[i]+5*latDelta]),
+                  projection([londata[j]+5*lonDelta, latdata[i]-5*latDelta]) ];
+
+        data.push([v, sic_mean[i][j]]);
       }
     }
 
-    //console.log(data)
-    //console.log(latdata[i]);
-    var circles = svg.selectAll("circle")
+    var polygons = svg.selectAll("polygon")
                               .data(data);
 
-    circles.exit().remove();
-    circles.enter().append("circle");
+    polygons.exit().remove();
+    polygons.enter().append("polygon");
 
-    // var lat = latdata[i];
-    // console.log(lat);
-    var circleAttributes = circles
-                           .attr("cx", function (d) { return d[0]; })
-                           .attr("cy", function (d) { return d[1]; })
-                           .attr("r", function (d) {
-                              //console.log(d[2]);
-                              return d[2]*2; })
-                           .style("fill", function(d) { return "red"; });
+    var polygonAttributes = polygons
+                           .attr("points",function(d) {
+                              return d[0].map(function(d) { return d.join(","); }).join(" ");
+                           })
+                           .style("fill", "rgb(255,255,200)")
+                           .style("opacity", function(d) { return d[1]; })
+                           .style("stroke-width", 0)
+                           .style("stroke", "red");
 
     if (k<433) {
       k += 1;
@@ -108,8 +108,10 @@ function updatePlot(latdata, londata) {
   });
 }
 
-d3.json("./json/lon.json", function(londata) {
-  d3.json("./json/lat.json", function(latdata) {
+d3.json("./json/sea-ice/lon.json", function(londata) {
+  d3.json("./json/sea-ice/lat.json", function(latdata) {
+    latDelta = (latdata[1]-latdata[0])/2
+    lonDelta = (londata[1]-londata[0])/2
     updatePlot(latdata, londata);
   });
 });
