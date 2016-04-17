@@ -1,10 +1,9 @@
-
-
 import json
-
+from json import encoder
 from netCDF4 import Dataset
 import matplotlib.pyplot as plt
 
+data_dir = "json/sea-ice"
 #nci = Dataset('data/ice-cores/Burkhart_JGR_2009.nc', 'r')
 
 sid = Dataset('data/sea-ice/Bootstrap2_seaice_NH_monthly_197811-201412.nc', 'r')
@@ -13,20 +12,20 @@ time = sid.variables['time']
 lat = sid.variables['lat']
 lon = sid.variables['lon']
 
-# for i, t in enumerate(time):
-# 	with open("json/"+str(int(i))+".json", 'w') as fd:
-# 		fd.write(json.dumps(sic_mean[i,0].filled(0).tolist()))
-# 	print i, t
-print type(lat[0:].tolist())
-
-with open("json/lat.json", 'w') as fd:
+with open(data_dir+"lat.json", 'w') as fd:
 	fd.write(json.dumps(lat[0:].tolist()))
 
-with open("json/lon.json", 'w') as fd:
+with open(data_dir+"lon.json", 'w') as fd:
 	fd.write(json.dumps(lon[0:].tolist()))
 
-with open("json/time.json", 'w') as fd:
+with open(data_dir+"time.json", 'w') as fd:
 	fd.write(json.dumps(time[0:].tolist()))
+
+encoder.FLOAT_REPR = lambda o: format(o, '.2f')
+for i, t in enumerate(time):
+	with open(data_dir+str(int(i))+".json", 'w') as fd:
+		fd.write(json.dumps(sic_mean[i,0].filled(0).tolist()))
+	print i, t
 
 # len(nci.groups)
 # nci.groups.keys()
