@@ -4,8 +4,9 @@ var width = 400,
 var projection = d3.geo.orthographic()
     .scale(153)
     .translate([width / 2, height / 2])
-    .precision(.1)
-    .rotate([90,90,0]);
+    .precision(.6)
+    .rotate([0,-90,0])
+    .clipAngle(90);
 
 var path = d3.geo.path()
     .projection(projection);
@@ -39,37 +40,28 @@ d3.json("./json/world-50m.json", function(error, world) {
 });
 
 var k=0;
-function updatePlot(latdata, londata) {
-  console.log(k);
-
+function updatePlot() {
+  var side = 5*lonDelta;
   d3.json("./json/sea-ice/"+k+".json", function(sic_mean) {
-    data = []
-
-    for (i = 0; i < latdata.length; i+=5) {
-      for (j = 0; j < londata.length; j+=5) {
-        if(sic_mean[i][j] !== 0) {
-          var v = [ projection([londata[j]-5*lonDelta, latdata[i]-5*latDelta]),
-                    projection([londata[j]-5*lonDelta, latdata[i]+5*latDelta]),
-                    projection([londata[j]+5*lonDelta, latdata[i]+5*latDelta]),
-                    projection([londata[j]+5*lonDelta, latdata[i]-5*latDelta]) ];
-
-          data.push([v, sic_mean[i][j]]);
-        }
-      }
-    }
-
     var polygons = svg.selectAll("polygon")
-                              .data(data);
+                      .data(sic_mean);
 
     polygons.exit().remove();
     polygons.enter().append("polygon");
 
     var polygonAttributes = polygons
                            .attr("points",function(d) {
-                              return d[0].map(function(d) { return d.join(","); }).join(" ");
+                              var pt = d.slice(1);
+                              var pts = [ projection([pt[1]-side, pt[0]-side]),
+                                          projection([pt[1]-side, pt[0]+side]),
+                                          projection([pt[1]+side, pt[0]+side]),
+                                          projection([pt[1]+side, pt[0]-side]) ];
+                              return pts.map(function(dd) {
+                                return dd.join(",");
+                              }).join(" ");
                            })
-                           .style("fill", "rgb(255,255,200)")
-                           .style("opacity", function(d) { return d[1]; })
+                           .style("fill", "rgb(255,0,200)")
+                           .style("opacity", function(d) { return d[0]; })
                            .style("stroke-width", 0)
                            .style("stroke", "red");
   });
@@ -136,15 +128,15 @@ function setupSlider() {
   t_slider.noUiSlider.on('update', function( values, handle ) {
       k = timeData.indexOf(Math.floor(values[handle]));
       $("#time_str").text( formatDate(new Date(values[handle]*1000)) );
-      updatePlot(latData, lonData);
+      updatePlot();
   });
 }
 
 var timeData, latData, lonData;
 d3.json("./json/sea-ice/lon.json", function(londata) {
   d3.json("./json/sea-ice/lat.json", function(latdata) {
-    latDelta = (latdata[1]-latdata[0])/2
-    lonDelta = (londata[1]-londata[0])/2
+    latDelta = (latdata[1]-latdata[0]);
+    lonDelta = (londata[1]-londata[0]);
     d3.json("./json/sea-ice/time.json", function(timedata) {
       timeData = timedata;
       latData = latdata;

@@ -27,19 +27,36 @@ with open(data_dir+"time.json", 'w') as fd:
 	time_list = [(time_offset+dt.timedelta(days=x)).total_seconds() for x in time_list]
 	fd.write(json.dumps(time_list))
 
-# def json_float_formatter(o):
-# 	s = format(o, '.2f')
-# 	if float(s) != 0:
-# 		return s
-# 	else:
-# 		return "0"
+def json_float_formatter(o):
+	s = format(o, '.2f')
+	if float(s) != 0:
+		return s
+	else:
+		return "0"
 
-# encoder.FLOAT_REPR = json_float_formatter
-# json.encoder.c_make_encoder = None
-# for i, t in enumerate(time):
-# 	with open(data_dir+str(int(i))+".json", 'w') as fd:
-# 		fd.write(json.dumps(sic_mean[i,0].filled(0).tolist(), separators=(',',':')))
-# 	print i, t
+import numpy as np
+
+lonDelta = (lon[1]-lon[0])*4.5
+latDelta = (lat[1]-lat[0])*4.5
+
+encoder.FLOAT_REPR = json_float_formatter
+json.encoder.c_make_encoder = None
+for i, t in enumerate(time):
+	d = [];
+	for j, x in enumerate(lat):
+		if j%10 == 0:
+			for k, y in enumerate(lon):
+				if k%10 == 0:
+					try:
+						v = np.sum(sic_mean[i,0,j:j+9,k:k+9].filled(0))
+					except AttributeError:
+						v = np.sum(sic_mean[i,0,j:j+9,k:k+9])
+					if v != 0:
+						d.append([v/100, x+latDelta, y+lonDelta])
+
+	with open(data_dir+str(int(i))+".json", 'w') as fd:
+	 	fd.write(json.dumps(d, separators=(',',':')))
+	print i, t
 
 # len(nci.groups)
 # nci.groups.keys()
