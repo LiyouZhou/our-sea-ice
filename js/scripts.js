@@ -42,9 +42,6 @@ var k=0;
 function updatePlot(latdata, londata) {
   console.log(k);
 
-  d = new Date(timeData[k]*1000)
-  $("#time_str").text(d);
-
   d3.json("./json/sea-ice/"+k+".json", function(sic_mean) {
     data = []
 
@@ -75,24 +72,84 @@ function updatePlot(latdata, londata) {
                            .style("opacity", function(d) { return d[1]; })
                            .style("stroke-width", 0)
                            .style("stroke", "red");
-
-    if (k<433) {
-      k += 1;
-      setTimeout(updatePlot(latdata, londata), 3000);
-    } else {
-      k = 0;
-    }
   });
 }
 
-var timeData
+// Create a list of day and monthnames.
+var
+  weekdays = [
+    "Sunday", "Monday", "Tuesday",
+    "Wednesday", "Thursday", "Friday",
+    "Saturday"
+  ],
+  months = [
+    "January", "February", "March",
+    "April", "May", "June", "July",
+    "August", "September", "October",
+    "November", "December"
+  ];
+
+// Append a suffix to dates.
+// Example: 23 => 23rd, 1 => 1st.
+function nth (d) {
+  if(d>3 && d<21) return 'th';
+  switch (d % 10) {
+        case 1:  return "st";
+        case 2:  return "nd";
+        case 3:  return "rd";
+        default: return "th";
+    }
+}
+
+// Create a string representation of the date.
+function formatDate ( date ) {
+    return weekdays[date.getDay()] + ", " +
+        date.getDate() + nth(date.getDate()) + " " +
+        months[date.getMonth()] + " " +
+        date.getFullYear();
+}
+
+function setupSlider() {
+  var t_min = timeData[0];
+  var t_max = timeData[timeData.length-1];
+
+  var range = {
+    "min": t_min,
+    "max": t_max
+  };
+
+  for (var i=1; i<timeData.length-1; i+=1) {
+    var key = (timeData[i] - t_min)/(t_max-t_min);
+    range[key*100+"%"] = timeData[i];
+  }
+
+  console.log(range);
+
+  var t_slider = document.getElementById('time_slider');
+
+  noUiSlider.create(t_slider, {
+    start: t_max, // Handle start position
+    range: range,
+    snap: true
+  });
+
+  t_slider.noUiSlider.on('update', function( values, handle ) {
+      k = timeData.indexOf(Math.floor(values[handle]));
+      $("#time_str").text( formatDate(new Date(values[handle]*1000)) );
+      updatePlot(latData, lonData);
+  });
+}
+
+var timeData, latData, lonData;
 d3.json("./json/sea-ice/lon.json", function(londata) {
   d3.json("./json/sea-ice/lat.json", function(latdata) {
     latDelta = (latdata[1]-latdata[0])/2
     lonDelta = (londata[1]-londata[0])/2
     d3.json("./json/sea-ice/time.json", function(timedata) {
       timeData = timedata;
-      updatePlot(latdata, londata);
+      latData = latdata;
+      lonData = londata;
+      setupSlider();
     });
   });
 });
