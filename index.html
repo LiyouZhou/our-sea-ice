@@ -7,15 +7,37 @@
 
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/8.4.0/nouislider.min.css">
-</head>
-<body>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
   <script src="https://code.jquery.com/jquery-2.2.2.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.16/d3.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.20/topojson.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/8.4.0/nouislider.min.js"></script>
+</head>
+<body>
+  <div id="main_container" class="container">
+    <H1>Sea Ice Concentration of Our World</H1>
+    <svg></svg>
+    <div id="time_slider"></div>
+    <h2 id="time_str"></h2>
+  </div>
+  <nav class="navbar navbar-default navbar-fixed-bottom navbar-inverse">
+    <div class="container">
+      <p class="navbar-text">
+        Made by
+        <a href="https://github.com/LiyouZhou" class="navbar-link">
+          <b>Liyou Zhou</b>
+        </a>
+      </p>
+      <p class="navbar-text navbar-right">
+        Code can be found on
+        <a href="https://github.com/LiyouZhou/our-sea-ice"  class="navbar-link">
+          <b>GitHub</b>
+        </a>
+      </p>
+    </div>
+  </nav>
   <script src="js/scripts.js"></script>
-
-  <p id="time_str"></p>
-  <div id="time_slider"></div>
 </body>
 </html>

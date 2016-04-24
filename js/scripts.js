@@ -1,8 +1,10 @@
-var width = 650,
-    height = 350;
+var width = 800,
+    height = 400;
+
+var scale = 180;
 
 var charts = [{}, {}];
-var svg = d3.select("body").append("svg")
+var svg = d3.select("svg")
     .attr("width", width)
     .attr("height", height);
 
@@ -12,13 +14,13 @@ charts[1].g = svg.append("g")
                 .attr("transform", "translate("+width*3/4+",0)");
 
 charts[0].projection = d3.geo.orthographic()
-                          .scale(153)
+                          .scale(scale)
                           .translate([0, height / 2])
                           .precision(.6)
                           .clipAngle(90)
                           .rotate([0,-90,0]);
 charts[1].projection = d3.geo.orthographic()
-                          .scale(153)
+                          .scale(scale)
                           .translate([0, height / 2])
                           .precision(.6)
                           .clipAngle(90)

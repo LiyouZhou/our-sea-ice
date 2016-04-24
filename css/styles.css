@@ -14,3 +14,12 @@
   stroke: #fff;
   stroke-width: .5px;
 }
+
+div.container {
+	text-align: center;
+}
+
+#time_slider {
+	max-width: 800px;
+	margin: auto;
+}
