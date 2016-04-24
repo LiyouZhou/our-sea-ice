@@ -150,8 +150,6 @@ function setupSlider() {
     range[key*100+"%"] = timeData[i];
   }
 
-  console.log(range);
-
   var t_slider = document.getElementById('time_slider');
 
   noUiSlider.create(t_slider, {
