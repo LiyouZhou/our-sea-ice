@@ -48,9 +48,6 @@ d3.json("./json/world-50m.json", function(error, world) {
         .attr("class", "land")
         .attr("d", chart.path);
 
-    // console.log(world.objects.land);
-    // console.log(topojson.feature(world, world.objects.land));
-
     chart.g.insert("path", ".graticule")
         .datum(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }))
         .attr("class", "boundary")
@@ -81,6 +78,28 @@ function updatePlot() {
                            })
                            .style("fill", "rgb(255,0,200)")
                            .style("opacity", function(d) { return d[0]; });
+  });
+
+  d3.json("./json/sea-ice/southpole"+k+".json", function(sic_mean) {
+  var polygons = charts[1].g.selectAll("polygon")
+                    .data(sic_mean);
+
+  polygons.exit().remove();
+  polygons.enter().append("polygon");
+
+  var polygonAttributes = polygons
+                         .attr("points",function(d) {
+                            var pt = d.slice(1);
+                            var pts = [ [pt[1]-side, pt[0]-side],
+                                        [pt[1]-side, pt[0]+side],
+                                        [pt[1]+side, pt[0]+side],
+                                        [pt[1]+side, pt[0]-side] ];
+                            return pts.map(function(dd) {
+                              return charts[1].projection(dd).join(",");
+                            }).join(" ");
+                         })
+                         .style("fill", "rgb(255,0,200)")
+                         .style("opacity", function(d) { return d[0]; });
   });
 }
 
