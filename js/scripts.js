@@ -1,49 +1,68 @@
-var width = 400,
-    height = 400;
+var width = 650,
+    height = 350;
 
-var projection = d3.geo.orthographic()
-    .scale(153)
-    .translate([width / 2, height / 2])
-    .precision(.6)
-    .rotate([0,-90,0])
-    .clipAngle(90);
-
-var path = d3.geo.path()
-    .projection(projection);
-
-var graticule = d3.geo.graticule();
-
+var charts = [{}, {}];
 var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
 
-svg.append("path")
-    .datum(graticule)
-    .attr("class", "graticule")
-    .attr("d", path);
+charts[0].g = svg.append("g")
+                .attr("transform", "translate("+width/4+",0)");
+charts[1].g = svg.append("g")
+                .attr("transform", "translate("+width*3/4+",0)");
+
+charts[0].projection = d3.geo.orthographic()
+                          .scale(153)
+                          .translate([0, height / 2])
+                          .precision(.6)
+                          .clipAngle(90)
+                          .rotate([0,-90,0]);
+charts[1].projection = d3.geo.orthographic()
+                          .scale(153)
+                          .translate([0, height / 2])
+                          .precision(.6)
+                          .clipAngle(90)
+                          .rotate([0,90,0]);
+
+charts[0].path = d3.geo.path()
+                  .projection(charts[0].projection);
+charts[1].path = d3.geo.path()
+                  .projection(charts[1].projection);
+
+var graticule = d3.geo.graticule();
 
 d3.json("./json/world-50m.json", function(error, world) {
   if (error) throw error;
 
-  svg.insert("path", ".graticule")
-      .datum(topojson.feature(world, world.objects.land))
-      .attr("class", "land")
-      .attr("d", path);
+  for (var i=0; i<charts.length; i++)
+  {
+    var chart = charts[i];
 
-  console.log(world.objects.land);
-  console.log(topojson.feature(world, world.objects.land));
+    chart.g.append("path")
+        .datum(graticule)
+        .attr("class", "graticule")
+        .attr("d", chart.path);
 
-  svg.insert("path", ".graticule")
-      .datum(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }))
-      .attr("class", "boundary")
-      .attr("d", path);
+    chart.g.insert("path", ".graticule")
+        .datum(topojson.feature(world, world.objects.land))
+        .attr("class", "land")
+        .attr("d", chart.path);
+
+    // console.log(world.objects.land);
+    // console.log(topojson.feature(world, world.objects.land));
+
+    chart.g.insert("path", ".graticule")
+        .datum(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }))
+        .attr("class", "boundary")
+        .attr("d", chart.path);
+  }
 });
 
 var k=0;
 function updatePlot() {
   var side = 5*lonDelta;
   d3.json("./json/sea-ice/"+k+".json", function(sic_mean) {
-    var polygons = svg.selectAll("polygon")
+    var polygons = charts[0].g.selectAll("polygon")
                       .data(sic_mean);
 
     polygons.exit().remove();
@@ -52,18 +71,16 @@ function updatePlot() {
     var polygonAttributes = polygons
                            .attr("points",function(d) {
                               var pt = d.slice(1);
-                              var pts = [ projection([pt[1]-side, pt[0]-side]),
-                                          projection([pt[1]-side, pt[0]+side]),
-                                          projection([pt[1]+side, pt[0]+side]),
-                                          projection([pt[1]+side, pt[0]-side]) ];
+                              var pts = [ [pt[1]-side, pt[0]-side],
+                                          [pt[1]-side, pt[0]+side],
+                                          [pt[1]+side, pt[0]+side],
+                                          [pt[1]+side, pt[0]-side] ];
                               return pts.map(function(dd) {
-                                return dd.join(",");
+                                return charts[0].projection(dd).join(",");
                               }).join(" ");
                            })
                            .style("fill", "rgb(255,0,200)")
-                           .style("opacity", function(d) { return d[0]; })
-                           .style("stroke-width", 0)
-                           .style("stroke", "red");
+                           .style("opacity", function(d) { return d[0]; });
   });
 }
 
@@ -95,8 +112,7 @@ function nth (d) {
 
 // Create a string representation of the date.
 function formatDate ( date ) {
-    return weekdays[date.getDay()] + ", " +
-        date.getDate() + nth(date.getDate()) + " " +
+  return date.getDate() + nth(date.getDate()) + " " +
         months[date.getMonth()] + " " +
         date.getFullYear();
 }
